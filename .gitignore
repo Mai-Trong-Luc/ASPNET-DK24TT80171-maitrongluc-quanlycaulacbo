@@ -1,0 +1,20 @@
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+bin/
+obj/
+
+## Visual Studio Cache and settings
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## VS Code
+.vscode/
+
+## OS files
+Thumbs.db
+Desktop.ini
