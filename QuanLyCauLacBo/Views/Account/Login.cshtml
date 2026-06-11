@@ -1,0 +1,87 @@
+@model QuanLyCauLacBo.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-5">
+        <div class="card border-0 shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:64px;height:64px;">
+                        <i class="fas fa-sign-in-alt fa-2x text-white"></i>
+                    </div>
+                    <h3 class="fw-bold">Đăng nhập</h3>
+                    <p class="text-muted">Hệ thống Quản lý Câu lạc bộ Sinh viên</p>
+                </div>
+
+                <form asp-action="Login" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small" style="display:none;"></div>
+                    @{
+                        var errorMessages = ViewContext.ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList();
+                    }
+                    @if (errorMessages.Any())
+                    {
+                        <div class="alert alert-danger py-2 small">
+                            @foreach (var err in errorMessages)
+                            {
+                                <div><i class="fas fa-exclamation-triangle me-1"></i>@err</div>
+                            }
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label fw-semibold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập" />
+                        </div>
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="Nhập mật khẩu" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label text-muted">Ghi nhớ đăng nhập</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted mb-0">Chưa có tài khoản?
+                        <a asp-action="Register" class="text-primary fw-semibold text-decoration-none">Đăng ký ngay</a>
+                    </p>
+                </div>
+
+                <hr class="my-4">
+                <div class="card bg-light border-0">
+                    <div class="card-body py-2 px-3">
+                        <p class="fw-semibold mb-1 small">Tài khoản demo:</p>
+                        <small class="text-muted d-block">Admin: <code>admin</code> / <code>Admin@123</code></small>
+                        <small class="text-muted d-block">Sinh viên: <code>nguyen.van.a</code> / <code>Student@123</code></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

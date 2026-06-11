@@ -1,0 +1,81 @@
+@model QuanLyCauLacBo.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center p-4">
+            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mx-auto mb-3 fw-bold"
+                 style="width:80px;height:80px;font-size:2rem;">
+                @Model.FullName.Substring(0, 1).ToUpper()
+            </div>
+            <h5 class="fw-bold mb-1">@Model.FullName</h5>
+            <p class="text-muted mb-2">@Model.Email</p>
+            <span class="badge @(Model.Role == "Admin" ? "bg-danger" : Model.Role == "ClubManager" ? "bg-warning text-dark" : "bg-primary") mb-3">
+                @(Model.Role == "Admin" ? "Quản trị viên" : Model.Role == "ClubManager" ? "Quản lý CLB" : "Sinh viên")
+            </span>
+            <div class="text-muted small">
+                <div><i class="fas fa-id-card me-2"></i>MSSV: @(Model.StudentId ?? "Chưa cập nhật")</div>
+                <div class="mt-1"><i class="fas fa-calendar me-2"></i>Tham gia: @Model.CreatedAt.ToString("MM/yyyy")</div>
+            </div>
+            <a asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm mt-3">
+                <i class="fas fa-key me-1"></i>Đổi mật khẩu
+            </a>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-edit me-2 text-primary"></i>Chỉnh sửa thông tin</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Profile" method="post">
+                    <input asp-for="Id" type="hidden" />
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Tên đăng nhập</label>
+                            <input value="@Model.Username" class="form-control" disabled />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input value="@Model.Email" class="form-control" disabled />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StudentId" class="form-label fw-semibold"></label>
+                            <input asp-for="StudentId" class="form-control" placeholder="VD: DK24TT001" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DateOfBirth" class="form-label fw-semibold"></label>
+                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label fw-semibold"></label>
+                            <input asp-for="Address" class="form-control" placeholder="Địa chỉ của bạn" />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2 px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
