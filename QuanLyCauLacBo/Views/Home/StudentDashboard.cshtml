@@ -1,0 +1,165 @@
+@model QuanLyCauLacBo.Models.ViewModels.StudentDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Xin chào, @Model.CurrentUser.FullName! 👋</h2>
+        <p class="text-muted mb-0">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+    </div>
+    <div class="text-end">
+        <span class="badge bg-primary fs-6 px-3 py-2">@Model.CurrentUser.Role</span>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body py-3">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h4 class="fw-bold">@Model.MyClubs.Count(m => m.Status == "Active")</h4>
+                <small class="text-muted">CLB đang tham gia</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body py-3">
+                <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                <h4 class="fw-bold">@Model.MyRegistrations.Count(r => r.Status == "Registered")</h4>
+                <small class="text-muted">Sự kiện đã đăng ký</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body py-3">
+                <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+                <h4 class="fw-bold">@Model.UnreadNotifications</h4>
+                <small class="text-muted">Thông báo chưa đọc</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm text-center h-100">
+            <div class="card-body py-3">
+                <i class="fas fa-calendar-alt fa-2x text-info mb-2"></i>
+                <h4 class="fw-bold">@Model.SuggestedEvents.Count</h4>
+                <small class="text-muted">Sự kiện sắp tới</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Sự kiện sắp tới -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Sự kiện sắp tới</h5>
+                <a asp-controller="Event" asp-action="Index" class="btn btn-outline-primary btn-sm">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.SuggestedEvents.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var evt in Model.SuggestedEvents)
+                        {
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@evt.Id"
+                               class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="fw-bold mb-1">@evt.Title</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-users me-1"></i>@evt.Club?.Name &nbsp;
+                                            <i class="fas fa-map-marker-alt me-1"></i>@evt.Location
+                                        </small>
+                                    </div>
+                                    <div class="text-end ms-3">
+                                        <small class="badge bg-primary">@evt.StartDate.ToString("dd/MM")</small>
+                                        @if (evt.MaxParticipants.HasValue)
+                                        {
+                                            <br /><small class="text-muted">@evt.Registrations.Count/@evt.MaxParticipants chỗ</small>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-times fa-3x mb-3 opacity-50"></i>
+                        <p>Chưa có sự kiện sắp tới.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông báo gần đây -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-bell me-2 text-warning"></i>Thông báo</h5>
+                <a asp-controller="Notification" asp-action="Index" class="btn btn-outline-warning btn-sm">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentNotifications.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var notif in Model.RecentNotifications)
+                        {
+                            var typeColor = notif.Type switch
+                            {
+                                "Urgent" => "danger",
+                                "Warning" => "warning",
+                                "Event" => "primary",
+                                _ => "info"
+                            };
+                            <div class="list-group-item px-3 py-2">
+                                <div class="d-flex align-items-start gap-2">
+                                    <span class="badge bg-@typeColor mt-1" style="font-size:0.6rem;">@notif.Type</span>
+                                    <div>
+                                        <p class="fw-semibold mb-1 small">@notif.Title</p>
+                                        <small class="text-muted">@notif.CreatedAt.ToString("dd/MM HH:mm")</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-bell-slash fa-2x mb-2 opacity-50"></i>
+                        <p class="small">Không có thông báo mới.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-bolt me-2 text-warning"></i>Truy cập nhanh</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Club" asp-action="Index" class="btn btn-outline-primary btn-sm text-start">
+                        <i class="fas fa-search me-2"></i>Tìm câu lạc bộ
+                    </a>
+                    <a asp-controller="Event" asp-action="Index" class="btn btn-outline-success btn-sm text-start">
+                        <i class="fas fa-calendar me-2"></i>Xem sự kiện
+                    </a>
+                    <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-secondary btn-sm text-start">
+                        <i class="fas fa-user me-2"></i>Chỉnh sửa hồ sơ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

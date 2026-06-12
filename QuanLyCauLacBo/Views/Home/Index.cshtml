@@ -1,0 +1,155 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var clubs = ViewBag.Clubs as List<QuanLyCauLacBo.Models.Domain.Club> ?? new();
+    var events = ViewBag.Events as List<QuanLyCauLacBo.Models.Domain.Event> ?? new();
+}
+
+<!-- Hero Section -->
+<div class="p-5 mb-5 text-white text-center rounded-3"
+     style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 50%, #084298 100%);">
+    <h1 class="display-5 fw-bold"><i class="fas fa-university me-3"></i>Hệ thống Quản lý Câu lạc bộ</h1>
+    <p class="lead fs-5 mb-4">Trường Kỹ thuật và Công nghệ - Nơi kết nối đam mê, phát triển tài năng</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a asp-controller="Account" asp-action="Register" class="btn btn-warning btn-lg fw-bold px-4">
+            <i class="fas fa-user-plus me-2"></i>Tham gia ngay
+        </a>
+        <a asp-controller="Club" asp-action="Index" class="btn btn-outline-light btn-lg px-4">
+            <i class="fas fa-search me-2"></i>Khám phá CLB
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body py-4">
+                <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                <h3 class="fw-bold text-primary">@clubs.Count+</h3>
+                <p class="text-muted mb-0 small">Câu lạc bộ</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body py-4">
+                <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                <h3 class="fw-bold text-success">@events.Count+</h3>
+                <p class="text-muted mb-0 small">Sự kiện/năm</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body py-4">
+                <i class="fas fa-user-graduate fa-2x text-warning mb-2"></i>
+                <h3 class="fw-bold text-warning">500+</h3>
+                <p class="text-muted mb-0 small">Sinh viên tham gia</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body py-4">
+                <i class="fas fa-trophy fa-2x text-danger mb-2"></i>
+                <h3 class="fw-bold text-danger">50+</h3>
+                <p class="text-muted mb-0 small">Giải thưởng</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Câu lạc bộ nổi bật -->
+@if (clubs.Any())
+{
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold"><i class="fas fa-star me-2 text-warning"></i>Câu lạc bộ nổi bật</h2>
+            <a asp-controller="Club" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            @foreach (var club in clubs)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle me-3 d-flex align-items-center justify-content-center text-white fw-bold"
+                                     style="width:48px;height:48px;min-width:48px;background:linear-gradient(135deg,#0d6efd,#6610f2);font-size:1.2rem;">
+                                    @club.Name.Substring(0, 1)
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">@club.Name</h6>
+                                    <small class="text-muted">@club.Faculty</small>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-3" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                                @club.Description
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-users me-1"></i>@club.Members.Count(m => m.Status == "Active") thành viên
+                                </span>
+                                <a asp-controller="Club" asp-action="Details" asp-route-id="@club.Id"
+                                   class="btn btn-primary btn-sm">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Sự kiện sắp tới -->
+@if (events.Any())
+{
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Sự kiện sắp tới</h2>
+            <a asp-controller="Event" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            @foreach (var evt in events)
+            {
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary small">@evt.Club?.Name</span>
+                                <small class="text-muted"><i class="fas fa-calendar me-1"></i>@evt.StartDate.ToString("dd/MM/yyyy")</small>
+                            </div>
+                            <h5 class="fw-bold mb-2">@evt.Title</h5>
+                            <p class="text-muted small mb-3" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                                @evt.Description
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>@evt.Location</small>
+                                <a asp-controller="Event" asp-action="Details" asp-route-id="@evt.Id"
+                                   class="btn btn-outline-primary btn-sm">Chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- CTA -->
+<div class="card border-0 bg-primary text-white text-center p-5 rounded-3 shadow mb-4">
+    <h3 class="fw-bold mb-2">Bạn chưa có tài khoản?</h3>
+    <p class="mb-4 opacity-75">Đăng ký ngay để tham gia các câu lạc bộ và sự kiện thú vị!</p>
+    <div>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-warning btn-lg fw-bold me-3">
+            <i class="fas fa-user-plus me-2"></i>Đăng ký miễn phí
+        </a>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+        </a>
+    </div>
+</div>
