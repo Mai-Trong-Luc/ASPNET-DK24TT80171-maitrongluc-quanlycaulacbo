@@ -1,0 +1,77 @@
+@model QuanLyCauLacBo.Models.ViewModels.ClubFormViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa câu lạc bộ";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-warning text-dark py-3 border-0">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-edit me-2"></i>Chỉnh sửa câu lạc bộ</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Faculty" class="form-label fw-semibold"></label>
+                            <input asp-for="Faculty" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FoundedDate" class="form-label fw-semibold"></label>
+                            <input asp-for="FoundedDate" class="form-control" type="date" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactEmail" class="form-label fw-semibold"></label>
+                            <input asp-for="ContactEmail" class="form-control" type="email" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactPhone" class="form-label fw-semibold"></label>
+                            <input asp-for="ContactPhone" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">Đang hoạt động</option>
+                                <option value="Inactive">Tạm ngưng</option>
+                                <option value="Suspended">Đình chỉ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LogoUrl" class="form-label fw-semibold"></label>
+                            <input asp-for="LogoUrl" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-warning text-dark px-4 fw-bold">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4">Hủy</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="ms-auto">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger px-4"
+                                        onclick="return confirm('Xóa câu lạc bộ này? Hành động này không thể hoàn tác!')">
+                                    <i class="fas fa-trash me-2"></i>Xóa
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

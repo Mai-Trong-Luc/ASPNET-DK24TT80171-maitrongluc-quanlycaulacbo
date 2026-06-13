@@ -1,0 +1,196 @@
+@model QuanLyCauLacBo.Models.ViewModels.EventDetailViewModel
+@{
+    ViewData["Title"] = Model.Event.Title;
+    var evt = Model.Event;
+    var statusBadge = evt.Status switch
+    {
+        "Upcoming" => "primary",
+        "Ongoing" => "success",
+        "Completed" => "secondary",
+        _ => "danger"
+    };
+    var statusLabel = evt.Status switch
+    {
+        "Upcoming" => "Sắp diễn ra",
+        "Ongoing" => "Đang diễn ra",
+        "Completed" => "Đã kết thúc",
+        _ => "Đã hủy"
+    };
+}
+
+<!-- Header -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+            <div>
+                <div class="mb-2">
+                    <span class="badge bg-@statusBadge fs-6 px-3">@statusLabel</span>
+                    <span class="badge bg-light text-dark ms-2 border">@evt.Club?.Name</span>
+                </div>
+                <h2 class="fw-bold mb-2">@evt.Title</h2>
+            </div>
+            @if (User.IsInRole("Admin") || User.IsInRole("ClubManager"))
+            {
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@evt.Id" class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@evt.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Xóa sự kiện này?')">
+                            <i class="fas fa-trash me-1"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-md-3">
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <i class="fas fa-calendar-day fa-lg text-primary"></i>
+                    <div>
+                        <div class="small fw-semibold text-dark">Bắt đầu</div>
+                        <div class="small">@evt.StartDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <i class="fas fa-calendar-check fa-lg text-success"></i>
+                    <div>
+                        <div class="small fw-semibold text-dark">Kết thúc</div>
+                        <div class="small">@evt.EndDate.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <i class="fas fa-map-marker-alt fa-lg text-danger"></i>
+                    <div>
+                        <div class="small fw-semibold text-dark">Địa điểm</div>
+                        <div class="small">@(evt.Location ?? "Chưa xác định")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="d-flex align-items-center gap-2 text-muted">
+                    <i class="fas fa-users fa-lg text-info"></i>
+                    <div>
+                        <div class="small fw-semibold text-dark">Đã đăng ký</div>
+                        <div class="small">@Model.RegisteredCount/@(evt.MaxParticipants?.ToString() ?? "Không giới hạn")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration button -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @if (Model.IsCurrentUserRegistered)
+            {
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-success py-2 px-3 fs-6">
+                        <i class="fas fa-check-circle me-2"></i>Đã đăng ký tham gia
+                    </span>
+                    @if (evt.Status == "Upcoming")
+                    {
+                        <form asp-action="CancelRegistration" asp-route-id="@evt.Id" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                    onclick="return confirm('Hủy đăng ký tham gia sự kiện này?')">
+                                <i class="fas fa-times me-1"></i>Hủy đăng ký
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+            else if (Model.CanRegister)
+            {
+                <form asp-action="Register" asp-route-id="@evt.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-user-plus me-2"></i>Đăng ký tham gia
+                    </button>
+                </form>
+            }
+            else if (evt.Status != "Upcoming")
+            {
+                <span class="text-muted"><i class="fas fa-info-circle me-2"></i>Sự kiện không còn nhận đăng ký.</span>
+            }
+            else
+            {
+                <span class="badge bg-danger py-2 px-3">Đã hết chỗ</span>
+            }
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập để đăng ký
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Mô tả -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Thông tin sự kiện</h5>
+            </div>
+            <div class="card-body p-4">
+                @if (!string.IsNullOrEmpty(evt.Description))
+                {
+                    <p style="white-space:pre-line;">@evt.Description</p>
+                }
+                else
+                {
+                    <p class="text-muted">Chưa có mô tả.</p>
+                }
+                <hr>
+                <small class="text-muted">
+                    <i class="fas fa-user me-1"></i>Người tạo: @evt.CreatedBy?.FullName &nbsp;|&nbsp;
+                    <i class="fas fa-clock me-1"></i>Đăng ngày @evt.CreatedAt.ToString("dd/MM/yyyy")
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách đăng ký -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-list-check me-2 text-success"></i>Người đăng ký (@Model.RegisteredCount)</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Registrations.Any(r => r.Status != "Cancelled"))
+                {
+                    <div class="list-group list-group-flush" style="max-height:350px;overflow-y:auto;">
+                        @foreach (var reg in Model.Registrations.Where(r => r.Status != "Cancelled").Take(20))
+                        {
+                            <div class="list-group-item px-3 py-2 d-flex align-items-center gap-2">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                     style="width:30px;height:30px;font-size:0.7rem;">
+                                    @reg.User.FullName.Substring(0, 1)
+                                </div>
+                                <div>
+                                    <p class="mb-0 small fw-semibold">@reg.User.FullName</p>
+                                    <small class="text-muted">@reg.RegisteredAt.ToString("dd/MM HH:mm")</small>
+                                </div>
+                                <span class="badge @(reg.Status == "Attended" ? "bg-success" : "bg-primary") ms-auto">
+                                    @(reg.Status == "Attended" ? "Đã tham dự" : "Đã đăng ký")
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4 small">Chưa có ai đăng ký.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

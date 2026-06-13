@@ -1,0 +1,72 @@
+@model QuanLyCauLacBo.Models.ViewModels.EventFormViewModel
+@{
+    ViewData["Title"] = "Tạo sự kiện mới";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white py-3 border-0">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-calendar-plus me-2"></i>Tạo sự kiện mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="ClubId" class="form-label fw-semibold"></label>
+                            <select asp-for="ClubId" class="form-select">
+                                <option value="">-- Chọn câu lạc bộ --</option>
+                                @foreach (var club in Model.Clubs)
+                                {
+                                    <option value="@club.Id">@club.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ClubId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Title" class="form-label fw-semibold"></label>
+                            <input asp-for="Title" class="form-control" placeholder="Tên sự kiện" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả chi tiết sự kiện..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label fw-semibold"></label>
+                            <input asp-for="StartDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label fw-semibold"></label>
+                            <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Location" class="form-label fw-semibold"></label>
+                            <input asp-for="Location" class="form-control" placeholder="VD: Hội trường A - Cơ sở 1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MaxParticipants" class="form-label fw-semibold"></label>
+                            <input asp-for="MaxParticipants" class="form-control" type="number" min="1" placeholder="Để trống = không giới hạn" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="ImageUrl" class="form-label fw-semibold"></label>
+                            <input asp-for="ImageUrl" class="form-control" placeholder="URL hình ảnh sự kiện (không bắt buộc)" />
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="fas fa-calendar-plus me-2"></i>Tạo sự kiện
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

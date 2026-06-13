@@ -1,0 +1,79 @@
+@model QuanLyCauLacBo.Models.ViewModels.EventFormViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa sự kiện";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-warning text-dark py-3 border-0">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-edit me-2"></i>Chỉnh sửa sự kiện</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="ClubId" class="form-label fw-semibold"></label>
+                            <select asp-for="ClubId" class="form-select">
+                                @foreach (var club in Model.Clubs)
+                                {
+                                    <option value="@club.Id" selected="@(Model.ClubId == club.Id ? "selected" : null)">@club.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Title" class="form-label fw-semibold"></label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="StartDate" class="form-label fw-semibold"></label>
+                            <input asp-for="StartDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="StartDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EndDate" class="form-label fw-semibold"></label>
+                            <input asp-for="EndDate" class="form-control" type="datetime-local" />
+                            <span asp-validation-for="EndDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Location" class="form-label fw-semibold"></label>
+                            <input asp-for="Location" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MaxParticipants" class="form-label fw-semibold"></label>
+                            <input asp-for="MaxParticipants" class="form-control" type="number" min="1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Upcoming">Sắp diễn ra</option>
+                                <option value="Ongoing">Đang diễn ra</option>
+                                <option value="Completed">Đã kết thúc</option>
+                                <option value="Cancelled">Đã hủy</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ImageUrl" class="form-label fw-semibold"></label>
+                            <input asp-for="ImageUrl" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-warning text-dark px-4 fw-bold">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

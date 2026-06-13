@@ -1,0 +1,125 @@
+@model QuanLyCauLacBo.Models.ViewModels.EventListViewModel
+@{
+    ViewData["Title"] = "Sự kiện";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-calendar-alt me-2 text-primary"></i>Sự kiện</h2>
+    @if (User.IsInRole("Admin") || User.IsInRole("ClubManager"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Tạo sự kiện
+        </a>
+    }
+</div>
+
+<!-- Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted">TÌM KIẾM</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input name="search" value="@Model.SearchTerm" class="form-control" placeholder="Tên sự kiện..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted">CÂU LẠC BỘ</label>
+                <select name="clubId" class="form-select">
+                    <option value="">Tất cả CLB</option>
+                    @foreach (var club in Model.Clubs)
+                    {
+                        <option value="@club.Id" selected="@(Model.ClubIdFilter == club.Id ? "selected" : null)">@club.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted">TRẠNG THÁI</label>
+                <select name="status" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option value="Upcoming" selected="@(Model.StatusFilter == "Upcoming" ? "selected" : null)">Sắp diễn ra</option>
+                    <option value="Ongoing" selected="@(Model.StatusFilter == "Ongoing" ? "selected" : null)">Đang diễn ra</option>
+                    <option value="Completed" selected="@(Model.StatusFilter == "Completed" ? "selected" : null)">Đã kết thúc</option>
+                    <option value="Cancelled" selected="@(Model.StatusFilter == "Cancelled" ? "selected" : null)">Đã hủy</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-1"></i>Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Events.Any())
+{
+    <div class="row g-4">
+        @foreach (var evt in Model.Events)
+        {
+            var statusBadge = evt.Status switch
+            {
+                "Upcoming" => "primary",
+                "Ongoing" => "success",
+                "Completed" => "secondary",
+                _ => "danger"
+            };
+            var statusLabel = evt.Status switch
+            {
+                "Upcoming" => "Sắp diễn ra",
+                "Ongoing" => "Đang diễn ra",
+                "Completed" => "Đã kết thúc",
+                _ => "Đã hủy"
+            };
+            var registeredCount = evt.Registrations.Count(r => r.Status != "Cancelled");
+
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-@statusBadge">@statusLabel</span>
+                            <small class="text-muted">@evt.StartDate.ToString("dd/MM/yyyy")</small>
+                        </div>
+                        <h5 class="fw-bold mb-2">@evt.Title</h5>
+                        <p class="text-muted small mb-3" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">
+                            @evt.Description
+                        </p>
+                        <div class="text-muted small mb-3">
+                            <div class="mb-1"><i class="fas fa-users me-2 text-primary"></i>@evt.Club?.Name</div>
+                            @if (!string.IsNullOrEmpty(evt.Location))
+                            {
+                                <div class="mb-1"><i class="fas fa-map-marker-alt me-2 text-danger"></i>@evt.Location</div>
+                            }
+                            <div>
+                                <i class="fas fa-user-check me-2 text-success"></i>
+                                @registeredCount/@(evt.MaxParticipants?.ToString() ?? "∞") người đăng ký
+                            </div>
+                        </div>
+                        @if (evt.MaxParticipants.HasValue)
+                        {
+                            var pct = Math.Min(100, (int)((double)registeredCount / evt.MaxParticipants.Value * 100));
+                            <div class="progress mb-3" style="height:5px;">
+                                <div class="progress-bar @(pct >= 90 ? "bg-danger" : pct >= 60 ? "bg-warning" : "bg-success")"
+                                     style="width:@pct%"></div>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-white border-0 pb-4 px-4 pt-0">
+                        <a asp-action="Details" asp-route-id="@evt.Id" class="btn btn-primary w-100">
+                            <i class="fas fa-info-circle me-2"></i>Chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-calendar-times fa-4x text-muted mb-3 opacity-50"></i>
+        <h4 class="text-muted">Không có sự kiện nào</h4>
+        <a asp-action="Index" class="btn btn-primary mt-2">Xem tất cả sự kiện</a>
+    </div>
+}

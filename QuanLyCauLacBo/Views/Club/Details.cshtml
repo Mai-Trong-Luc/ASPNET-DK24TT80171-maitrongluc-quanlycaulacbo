@@ -1,0 +1,202 @@
+@model QuanLyCauLacBo.Models.ViewModels.ClubDetailViewModel
+@{
+    ViewData["Title"] = Model.Club.Name;
+}
+
+<!-- Header -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row align-items-start gap-4">
+            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+                 style="width:80px;height:80px;background:linear-gradient(135deg,#0d6efd,#6610f2);font-size:2rem;">
+                @Model.Club.Name.Substring(0, 1)
+            </div>
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                    <div>
+                        <h2 class="fw-bold mb-1">@Model.Club.Name</h2>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-building me-1"></i>@Model.Club.Faculty &nbsp;|&nbsp;
+                            <i class="fas fa-calendar me-1"></i>Thành lập @Model.Club.FoundedDate.ToString("MM/yyyy")
+                        </p>
+                    </div>
+                    <span class="badge @(Model.Club.Status == "Active" ? "bg-success" : "bg-secondary") fs-6 px-3">
+                        @(Model.Club.Status == "Active" ? "Đang hoạt động" : "Tạm ngưng")
+                    </span>
+                </div>
+                <p class="text-muted mb-3">@Model.Club.Description</p>
+                <div class="d-flex gap-4 mb-3 text-center">
+                    <div>
+                        <div class="fw-bold fs-5 text-primary">@Model.Members.Count</div>
+                        <small class="text-muted">Thành viên</small>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5 text-success">@Model.UpcomingEvents.Count</div>
+                        <small class="text-muted">Sự kiện sắp tới</small>
+                    </div>
+                    <div>
+                        <div class="fw-bold fs-5 text-warning">@Model.RecentActivities.Count</div>
+                        <small class="text-muted">Hoạt động</small>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="d-flex gap-2 flex-wrap">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (!Model.IsCurrentUserMember && Model.CurrentUserMembership == null)
+                        {
+                            <form asp-action="Join" asp-route-id="@Model.Club.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>Tham gia CLB
+                                </button>
+                            </form>
+                        }
+                        else if (Model.CurrentUserMembership?.Status == "Pending")
+                        {
+                            <span class="btn btn-outline-warning disabled"><i class="fas fa-clock me-2"></i>Chờ duyệt</span>
+                        }
+                        else if (Model.IsCurrentUserMember)
+                        {
+                            <span class="badge bg-success py-2 px-3 fs-6"><i class="fas fa-check me-2"></i>Đã là thành viên (@Model.CurrentUserMembership?.Role)</span>
+                            <form asp-action="Leave" asp-route-id="@Model.Club.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Bạn chắc chắn muốn rời CLB này?')">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Rời CLB
+                                </button>
+                            </form>
+                        }
+                    }
+                    @if (Model.IsCurrentUserManager)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Club.Id" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Sửa thông tin
+                        </a>
+                        <a asp-action="ManageMembers" asp-route-id="@Model.Club.Id" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-users-cog me-1"></i>Quản lý thành viên
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Danh sách thành viên -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-users me-2 text-primary"></i>Thành viên (@Model.Members.Count)</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @foreach (var m in Model.Members.Take(8))
+                    {
+                        <div class="list-group-item px-3 py-2 d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                 style="width:36px;height:36px;font-size:0.85rem;">
+                                @m.User.FullName.Substring(0, 1)
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-semibold small">@m.User.FullName</p>
+                                <small class="text-muted">@m.Role</small>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.Members.Count > 8)
+                    {
+                        <div class="list-group-item text-center text-muted small py-2">
+                            +@(Model.Members.Count - 8) thành viên khác
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <!-- Sự kiện sắp tới -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-calendar-alt me-2 text-primary"></i>Sự kiện sắp tới</h5>
+                @if (Model.IsCurrentUserManager)
+                {
+                    <a asp-controller="Event" asp-action="Create" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Tạo sự kiện
+                    </a>
+                }
+            </div>
+            <div class="card-body p-0">
+                @if (Model.UpcomingEvents.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var evt in Model.UpcomingEvents)
+                        {
+                            <a asp-controller="Event" asp-action="Details" asp-route-id="@evt.Id"
+                               class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="fw-semibold mb-1">@evt.Title</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i>@evt.Location &nbsp;
+                                            <i class="fas fa-users me-1"></i>@evt.Registrations.Count/@(evt.MaxParticipants?.ToString() ?? "∞")
+                                        </small>
+                                    </div>
+                                    <small class="badge bg-primary ms-2">@evt.StartDate.ToString("dd/MM/yyyy")</small>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">Chưa có sự kiện sắp tới.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Hoạt động gần đây -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="fw-bold mb-0"><i class="fas fa-tasks me-2 text-warning"></i>Hoạt động gần đây</h5>
+                @if (Model.IsCurrentUserManager)
+                {
+                    <a asp-controller="Activity" asp-action="Create" class="btn btn-warning btn-sm">
+                        <i class="fas fa-plus me-1"></i>Tạo hoạt động
+                    </a>
+                }
+            </div>
+            <div class="card-body p-0">
+                @if (Model.RecentActivities.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var act in Model.RecentActivities)
+                        {
+                            var pct = act.Progress ?? 0;
+                            var barColor = pct >= 100 ? "success" : pct >= 50 ? "primary" : "warning";
+                            <a asp-controller="Activity" asp-action="Details" asp-route-id="@act.Id"
+                               class="list-group-item list-group-item-action px-4 py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <p class="fw-semibold mb-0">@act.Title</p>
+                                    <small class="badge @(act.Status == "Completed" ? "bg-success" : act.Status == "InProgress" ? "bg-primary" : "bg-warning text-dark")">
+                                        @(act.Status == "Completed" ? "Hoàn thành" : act.Status == "InProgress" ? "Đang thực hiện" : "Lên kế hoạch")
+                                    </small>
+                                </div>
+                                <div class="progress" style="height:6px;">
+                                    <div class="progress-bar bg-@barColor" style="width:@pct%"></div>
+                                </div>
+                                <small class="text-muted">@pct% hoàn thành</small>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-3">Chưa có hoạt động nào.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

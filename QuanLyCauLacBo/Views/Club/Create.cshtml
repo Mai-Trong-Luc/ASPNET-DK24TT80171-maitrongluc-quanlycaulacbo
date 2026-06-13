@@ -1,0 +1,68 @@
+@model QuanLyCauLacBo.Models.ViewModels.ClubFormViewModel
+@{
+    ViewData["Title"] = "Tạo câu lạc bộ mới";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white py-3 border-0">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-plus me-2"></i>Tạo câu lạc bộ mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="Name" class="form-label fw-semibold"></label>
+                            <input asp-for="Name" class="form-control" placeholder="VD: CLB Công nghệ thông tin" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Faculty" class="form-label fw-semibold"></label>
+                            <input asp-for="Faculty" class="form-control" placeholder="VD: Khoa Công nghệ thông tin" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FoundedDate" class="form-label fw-semibold"></label>
+                            <input asp-for="FoundedDate" class="form-control" type="date" />
+                            <span asp-validation-for="FoundedDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-semibold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4"
+                                      placeholder="Mô tả về câu lạc bộ, mục tiêu, hoạt động..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactEmail" class="form-label fw-semibold"></label>
+                            <input asp-for="ContactEmail" class="form-control" type="email" placeholder="clb@ktcn.edu.vn" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactPhone" class="form-label fw-semibold"></label>
+                            <input asp-for="ContactPhone" class="form-control" placeholder="0901234567" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="Active">Đang hoạt động</option>
+                                <option value="Inactive">Tạm ngưng</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LogoUrl" class="form-label fw-semibold"></label>
+                            <input asp-for="LogoUrl" class="form-control" placeholder="https://..." />
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Tạo câu lạc bộ
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
