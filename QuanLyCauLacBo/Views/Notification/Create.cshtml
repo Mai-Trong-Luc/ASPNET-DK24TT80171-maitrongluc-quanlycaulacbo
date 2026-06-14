@@ -1,0 +1,95 @@
+@model QuanLyCauLacBo.Models.ViewModels.NotificationFormViewModel
+@{
+    ViewData["Title"] = "Tạo thông báo";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-warning text-dark py-3 border-0">
+                <h4 class="mb-0 fw-bold"><i class="fas fa-bell me-2"></i>Tạo thông báo mới</h4>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Create" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Tiêu đề *</label>
+                            <input name="Title" value="@Model.Title" class="form-control" required placeholder="Tiêu đề thông báo" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Nội dung *</label>
+                            <textarea name="Content" class="form-control" rows="5" required placeholder="Nội dung thông báo...">@Model.Content</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Loại thông báo</label>
+                            <select name="Type" class="form-select">
+                                <option value="Info">Thông tin</option>
+                                <option value="Event">Sự kiện</option>
+                                <option value="Warning">Cảnh báo</option>
+                                <option value="Urgent">Khẩn cấp</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Hết hạn</label>
+                            <input name="ExpiresAt" type="date" class="form-control" />
+                        </div>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input name="IsGlobal" type="checkbox" class="form-check-input" id="isGlobal" value="true" />
+                                    <label class="form-check-label fw-semibold" for="isGlobal">
+                                        <i class="fas fa-globe me-1"></i>Gửi cho toàn trường
+                                    </label>
+                                </div>
+                                <small class="text-muted">Nếu không chọn, thông báo sẽ gửi cho thành viên của CLB được chọn.</small>
+                            </div>
+                            <div class="col-12" id="clubSelect">
+                                <label class="form-label fw-semibold">Câu lạc bộ</label>
+                                <select name="ClubId" class="form-select">
+                                    <option value="">-- Chọn câu lạc bộ --</option>
+                                    @foreach (var club in Model.Clubs)
+                                    {
+                                        <option value="@club.Id">@club.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="IsGlobal" value="false" />
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Câu lạc bộ</label>
+                                <select name="ClubId" class="form-select" required>
+                                    <option value="">-- Chọn câu lạc bộ --</option>
+                                    @foreach (var club in Model.Clubs)
+                                    {
+                                        <option value="@club.Id">@club.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-warning text-dark px-4 fw-bold">
+                            <i class="fas fa-paper-plane me-2"></i>Gửi thông báo
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const isGlobalCheckbox = document.getElementById('isGlobal');
+        const clubSelect = document.getElementById('clubSelect');
+        if (isGlobalCheckbox) {
+            isGlobalCheckbox.addEventListener('change', function () {
+                clubSelect.style.display = this.checked ? 'none' : 'block';
+            });
+        }
+    </script>
+}

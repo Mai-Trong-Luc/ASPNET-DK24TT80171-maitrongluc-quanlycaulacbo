@@ -1,0 +1,73 @@
+@model List<QuanLyCauLacBo.Models.Domain.Notification>
+@{
+    ViewData["Title"] = "Quản lý thông báo";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fas fa-bell me-2 text-warning"></i>Quản lý thông báo</h2>
+    <a asp-controller="Notification" asp-action="Create" class="btn btn-warning text-dark fw-bold">
+        <i class="fas fa-plus me-2"></i>Tạo thông báo
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tiêu đề</th>
+                    <th>Loại</th>
+                    <th>Đối tượng</th>
+                    <th>Người tạo</th>
+                    <th>Ngày tạo</th>
+                    <th>Hết hạn</th>
+                    <th class="text-end">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var notif in Model)
+                {
+                    var typeColor = notif.Type switch
+                    {
+                        "Urgent" => "danger",
+                        "Warning" => "warning",
+                        "Event" => "primary",
+                        _ => "info"
+                    };
+                    <tr>
+                        <td class="fw-semibold">@notif.Title</td>
+                        <td><span class="badge bg-@typeColor">@notif.Type</span></td>
+                        <td>
+                            @if (notif.IsGlobal)
+                            {
+                                <span class="badge bg-secondary"><i class="fas fa-globe me-1"></i>Toàn trường</span>
+                            }
+                            else if (notif.Club != null)
+                            {
+                                <span class="badge bg-primary bg-opacity-10 text-primary">@notif.Club.Name</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="text-muted small">@notif.CreatedBy?.FullName</td>
+                        <td class="text-muted small">@notif.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-muted small">
+                            @(notif.ExpiresAt.HasValue ? notif.ExpiresAt.Value.ToString("dd/MM/yyyy") : "—")
+                        </td>
+                        <td class="text-end">
+                            <form asp-controller="Notification" asp-action="Delete" asp-route-id="@notif.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Xóa thông báo này?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+@model QuanLyCauLacBo.Models.ViewModels.ActivityDetailViewModel
+@{
+    ViewData["Title"] = Model.Activity.Title;
+    var act = Model.Activity;
+    var pct = act.Progress ?? 0;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                    <div>
+                        <span class="badge bg-@(act.Status == "Completed" ? "success" : act.Status == "InProgress" ? "primary" : act.Status == "Planning" ? "warning text-dark" : "secondary") mb-2">
+                            @(act.Status == "Completed" ? "Hoàn thành" : act.Status == "InProgress" ? "Đang thực hiện" : act.Status == "Planning" ? "Lên kế hoạch" : "Đã hủy")
+                        </span>
+                        <h2 class="fw-bold mb-1">@act.Title</h2>
+                        <small class="text-muted">@act.Club?.Name</small>
+                    </div>
+                    @if (User.IsInRole("Admin") || User.IsInRole("ClubManager"))
+                    {
+                        <div class="d-flex gap-2">
+                            <a asp-action="Edit" asp-route-id="@act.Id" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-edit me-1"></i>Chỉnh sửa
+                            </a>
+                            <form asp-action="Delete" asp-route-id="@act.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Xóa hoạt động này?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+
+                <!-- Progress -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-semibold">Tiến độ hoàn thành</span>
+                        <span class="fw-bold text-primary">@pct%</span>
+                    </div>
+                    <div class="progress" style="height:12px;">
+                        <div class="progress-bar @(pct >= 100 ? "bg-success" : pct >= 50 ? "bg-primary" : "bg-warning") rounded-pill"
+                             style="width:@pct%"></div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-4">
+                        <div class="text-muted small fw-semibold mb-1">Ngày bắt đầu</div>
+                        <div><i class="fas fa-calendar-day me-1 text-primary"></i>@act.StartDate.ToString("dd/MM/yyyy")</div>
+                    </div>
+                    @if (act.EndDate.HasValue)
+                    {
+                        <div class="col-sm-4">
+                            <div class="text-muted small fw-semibold mb-1">Ngày kết thúc</div>
+                            <div><i class="fas fa-calendar-check me-1 text-success"></i>@act.EndDate.Value.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(act.Location))
+                    {
+                        <div class="col-sm-4">
+                            <div class="text-muted small fw-semibold mb-1">Địa điểm</div>
+                            <div><i class="fas fa-map-marker-alt me-1 text-danger"></i>@act.Location</div>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(act.Description))
+                {
+                    <div class="mb-3">
+                        <h6 class="fw-semibold">Mô tả</h6>
+                        <p class="text-muted" style="white-space:pre-line;">@act.Description</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(act.Result))
+                {
+                    <div class="alert alert-success">
+                        <h6 class="fw-semibold"><i class="fas fa-trophy me-2"></i>Kết quả</h6>
+                        <p class="mb-0" style="white-space:pre-line;">@act.Result</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Update Progress (for managers) -->
+        @if ((User.IsInRole("Admin") || User.IsInRole("ClubManager")) && act.Status != "Completed")
+        {
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0"><i class="fas fa-edit me-2 text-warning"></i>Cập nhật tiến độ</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="UpdateProgress" asp-route-id="@act.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Tiến độ (%)</label>
+                                <input type="number" name="progress" value="@pct" min="0" max="100" class="form-control" />
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Ghi chú kết quả</label>
+                                <input type="text" name="result" value="@act.Result" class="form-control" placeholder="Mô tả kết quả đạt được..." />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold mt-3">
+                            <i class="fas fa-save me-2"></i>Cập nhật tiến độ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

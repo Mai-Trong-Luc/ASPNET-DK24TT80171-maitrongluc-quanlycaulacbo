@@ -1,0 +1,114 @@
+@startuml
+' Cài đặt giao diện tối giản nhất có thể để giống hệt phần mềm SSMS chụp ra
+hide circle
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+    HeaderBackgroundColor White
+}
+
+' Chỉnh font chữ cho mộc mạc giống phần mềm mặc định
+skinparam defaultFontName Arial
+skinparam shadowing false
+
+' ==========================================
+' DANH SÁCH CÁC BẢNG (Chỉ để tên cột, KHÔNG để kiểu dữ liệu int/nvarchar để giống y hệt ảnh mẫu SSMS)
+' ==========================================
+
+entity "NguoiDung" as NguoiDung {
+  * Id
+  --
+  TenDangNhap
+  MatKhau
+  Email
+  HoTen
+  MaSinhVien
+  SoDienThoai
+  VaiTro
+}
+
+entity "CauLacBo" as CauLacBo {
+  * Id
+  --
+  TenCLB
+  MoTa
+  NgayThanhLap
+  EmailLienHe
+  TrangThai
+}
+
+entity "ThanhVienCLB" as ThanhVienCLB {
+  * Id
+  --
+  NguoiDungId
+  CauLacBoId
+  VaiTroTrongCLB
+  NgayThamGia
+}
+
+entity "SuKien" as SuKien {
+  * Id
+  --
+  CauLacBoId
+  TenSuKien
+  NgayBatDau
+  NgayKetThuc
+  DiaDiem
+  TrangThai
+}
+
+entity "DangKySuKien" as DangKySuKien {
+  * Id
+  --
+  SuKienId
+  NguoiDungId
+  NgayDangKy
+  TrangThai
+}
+
+entity "HoatDong" as HoatDong {
+  * Id
+  --
+  CauLacBoId
+  TenHoatDong
+  MoTa
+  NgayDienRa
+}
+
+entity "ThongBao" as ThongBao {
+  * Id
+  --
+  TieuDe
+  NoiDung
+  NgayTao
+}
+
+entity "ThongBaoNguoiDung" as ThongBaoNguoiDung {
+  * Id
+  --
+  ThongBaoId
+  NguoiDungId
+  DaDoc
+  NgayDoc
+}
+
+' ==========================================
+' CÁC ĐƯỜNG NỐI QUAN HỆ
+' ==========================================
+
+NguoiDung ||--o{ ThanhVienCLB
+CauLacBo ||--o{ ThanhVienCLB
+
+CauLacBo ||--o{ SuKien
+CauLacBo ||--o{ HoatDong
+CauLacBo ||--o{ ThongBao
+
+SuKien ||--o{ DangKySuKien
+NguoiDung ||--o{ DangKySuKien
+
+ThongBao ||--o{ ThongBaoNguoiDung
+NguoiDung ||--o{ ThongBaoNguoiDung
+
+@enduml

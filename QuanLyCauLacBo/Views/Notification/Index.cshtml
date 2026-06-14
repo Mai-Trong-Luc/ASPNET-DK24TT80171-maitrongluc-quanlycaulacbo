@@ -1,0 +1,107 @@
+@model List<QuanLyCauLacBo.Models.Domain.Notification>
+@{
+    ViewData["Title"] = "Thông báo";
+    var unread = ViewBag.UnreadCount as int? ?? 0;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold"><i class="fas fa-bell me-2 text-warning"></i>Thông báo</h2>
+        @if (unread > 0)
+        {
+            <span class="badge bg-danger">@unread thông báo chưa đọc</span>
+        }
+    </div>
+    <div class="d-flex gap-2">
+        @if (unread > 0)
+        {
+            <form asp-action="MarkAllRead" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-check-double me-1"></i>Đánh dấu tất cả đã đọc
+                </button>
+            </form>
+        }
+        @if (User.IsInRole("Admin") || User.IsInRole("ClubManager"))
+        {
+            <a asp-action="Create" class="btn btn-warning btn-sm text-dark fw-bold">
+                <i class="fas fa-plus me-1"></i>Tạo thông báo
+            </a>
+        }
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <div class="card border-0 shadow-sm">
+        <div class="list-group list-group-flush">
+            @foreach (var notif in Model)
+            {
+                var typeColor = notif.Type switch
+                {
+                    "Urgent" => "danger",
+                    "Warning" => "warning",
+                    "Event" => "primary",
+                    _ => "info"
+                };
+                var typeIcon = notif.Type switch
+                {
+                    "Urgent" => "fas fa-exclamation-triangle",
+                    "Warning" => "fas fa-exclamation-circle",
+                    "Event" => "fas fa-calendar-alt",
+                    _ => "fas fa-info-circle"
+                };
+
+                <div class="list-group-item p-4 border-start border-@typeColor border-3">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div class="d-flex align-items-start gap-3 flex-grow-1">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-@typeColor text-white flex-shrink-0"
+                                 style="width:42px;height:42px;">
+                                <i class="@typeIcon"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                    <h6 class="fw-bold mb-0">@notif.Title</h6>
+                                    <span class="badge bg-@typeColor bg-opacity-10 text-@typeColor border border-@typeColor small">@notif.Type</span>
+                                    @if (notif.IsGlobal)
+                                    {
+                                        <span class="badge bg-secondary small"><i class="fas fa-globe me-1"></i>Toàn trường</span>
+                                    }
+                                    else if (notif.Club != null)
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary small">@notif.Club.Name</span>
+                                    }
+                                </div>
+                                <p class="text-muted mb-1">@notif.Content</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>@notif.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    @if (notif.ExpiresAt.HasValue)
+                                    {
+                                        <span> &nbsp;|&nbsp; <i class="fas fa-calendar-times me-1"></i>Hết hạn: @notif.ExpiresAt.Value.ToString("dd/MM/yyyy")</span>
+                                    }
+                                </small>
+                            </div>
+                        </div>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-action="Delete" asp-route-id="@notif.Id" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Xóa thông báo này?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-bell-slash fa-4x text-muted mb-3 opacity-50"></i>
+        <h4 class="text-muted">Không có thông báo nào</h4>
+    </div>
+}

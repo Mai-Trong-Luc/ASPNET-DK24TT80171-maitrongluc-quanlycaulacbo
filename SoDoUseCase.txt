@@ -1,0 +1,84 @@
+@startuml
+' Sử dụng hướng đi từ trên xuống nhưng ép các line nằm ngang để chống loằng ngoằng
+skinparam packageStyle rectangle
+skinparam shadowing true
+
+' Khai báo màu cho từng loại Actor
+actor "Khách\n(Chưa đăng nhập)" as guest #LightBlue
+actor "Sinh viên" as student #LightGreen
+actor "Quản lý CLB" as club_manager #Gold
+actor "Quản trị viên" as admin #Plum
+
+' Khai báo hộp hệ thống
+rectangle "Hệ thống Quản lý Câu lạc bộ và Hoạt động Sinh viên" {
+  
+  (Đăng ký / Đăng nhập) as UC_Auth #LightBlue
+  
+  ' Khai báo các Use Case theo từng dòng để lát nữa ép lưới
+  (Tìm kiếm CLB và Sự kiện) as UC_Search #LightBlue
+  (Quản lý thành viên CLB) as UC_ManageMembers #Gold
+  
+  (Xem thông tin CLB) as UC_ViewClub #LightGreen
+  (Tạo và Quản lý Sự kiện) as UC_ManageEvents #Gold
+  
+  (Đăng ký tham gia CLB) as UC_JoinClub #LightGreen
+  (Gửi thông báo chung) as UC_SendNotice #Gold
+  
+  (Đăng ký tham gia Sự kiện) as UC_JoinEvent #LightGreen
+  (CRUD Quản trị\nQuản lý Người dùng, CLB) as UC_AdminCRUD #Plum
+  
+  (Dashboard\nThống kê, báo cáo) as UC_Dashboard #Plum
+  
+  ' ==== ÉP LƯỚI NGANG (Cột Trái và Cột Phải) ====
+  UC_Search -[hidden]right-> UC_ManageMembers
+  UC_ViewClub -[hidden]right-> UC_ManageEvents
+  UC_JoinClub -[hidden]right-> UC_SendNotice
+  UC_JoinEvent -[hidden]right-> UC_AdminCRUD
+  
+  ' ==== ÉP LƯỚI DỌC (Chống chạy lung tung) ====
+  UC_Auth -[hidden]down-> UC_Search
+  UC_Search -[hidden]down-> UC_ViewClub
+  UC_ViewClub -[hidden]down-> UC_JoinClub
+  UC_JoinClub -[hidden]down-> UC_JoinEvent
+  
+  UC_ManageMembers -[hidden]down-> UC_ManageEvents
+  UC_ManageEvents -[hidden]down-> UC_SendNotice
+  UC_SendNotice -[hidden]down-> UC_AdminCRUD
+  UC_AdminCRUD -[hidden]down-> UC_Dashboard
+}
+
+' Nối mũi tên từ Actor Trái (Ép đi ngang thẳng tắp sang Phải)
+guest -right-> UC_Auth
+guest -right-> UC_Search
+
+student -right-> UC_ViewClub
+student -right-> UC_JoinClub
+student -right-> UC_JoinEvent
+
+' Nối mũi tên từ Actor Phải (Ép đi ngang thẳng tắp sang Trái)
+UC_ManageMembers <-right- club_manager
+UC_ManageEvents <-right- club_manager
+UC_SendNotice <-right- club_manager
+
+UC_AdminCRUD <-right- admin
+UC_Dashboard <-right- admin
+
+' Các đường include (Dùng nét đứt cong)
+UC_JoinClub .up.> UC_Auth : <<include>>
+UC_JoinEvent .up.> UC_Auth : <<include>>
+UC_ManageMembers .up.> UC_Auth : <<include>>
+UC_ManageEvents .up.> UC_Auth : <<include>>
+UC_AdminCRUD .up.> UC_Auth : <<include>>
+UC_Dashboard .up.> UC_Auth : <<include>>
+
+' Thêm bảng chú thích (Legend)
+legend bottom left
+  |= Ký hiệu / Màu sắc |= Ý nghĩa |
+  | <back:LightBlue>          </back> | Chức năng Chung / Khách |
+  | <back:LightGreen>          </back> | Chức năng Sinh viên |
+  | <back:Gold>          </back> | Chức năng Quản lý CLB |
+  | <back:Plum>          </back> | Chức năng Quản trị viên |
+  |  ━━━━▶  | Association: Nhân vật được quyền sử dụng chức năng này |
+  |  - - - -▶  | <<include>>: BẮT BUỘC phải thực hiện trước (VD: Phải Đăng nhập) |
+endlegend
+@enduml
